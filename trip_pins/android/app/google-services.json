@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "124861926728",
+    "project_id": "trip-pins-728b3",
+    "storage_bucket": "trip-pins-728b3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124861926728:android:c665890153967096e5f77d",
+        "android_client_info": {
+          "package_name": "com.claudiolamelas.trippins"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbX1K7TDO88S2sQlLUedF2lCchjwHEReA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
