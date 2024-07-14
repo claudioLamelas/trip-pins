@@ -24,16 +24,57 @@ class MainApp extends StatelessWidget {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.transparent,
-          leading: Builder(builder: (context) {
-            return IconButton(
-              onPressed: () => {Scaffold.of(context).openDrawer()},
-              icon: const Icon(Icons.menu),
-            );
-          }),
+          leading: Builder(
+            builder: (context) {
+              return IconButton(
+                onPressed: () => {Scaffold.of(context).openDrawer()},
+                icon: const Icon(Icons.menu),
+              );
+            },
+          ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton.icon(
+                style: const ButtonStyle(
+                  backgroundColor:
+                      WidgetStatePropertyAll(Color.fromARGB(143, 0, 0, 0)),
+                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+                  fixedSize: WidgetStatePropertyAll<Size>(Size(190, 30)),
+                  shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                    ),
+                  ),
+                ),
+                onPressed: () {},
+                label: const Text("My Trips"),
+                iconAlignment: IconAlignment.start,
+                icon: const Icon(Icons.pin_drop),
+              ),
+              ElevatedButton.icon(
+                style: const ButtonStyle(
+                  backgroundColor:
+                      WidgetStatePropertyAll(Color.fromARGB(143, 0, 0, 0)),
+                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+                  fixedSize: WidgetStatePropertyAll<Size>(Size(100, 30)),
+                  shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                    ),
+                  ),
+                ),
+                onPressed: () {},
+                label: const Text("Add"),
+                iconAlignment: IconAlignment.start,
+                icon: const Icon(Icons.add),
+              )
+            ],
+          ),
         ),
         drawer: Drawer(
           child: ListView(
-            children: [
+            children: const [
               Text("data"),
               Text("date"),
             ],
