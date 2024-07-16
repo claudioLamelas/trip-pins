@@ -24,6 +24,19 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   bool viewModeActive = false;
   bool showViewModeBar = false;
+  Map<String, bool> filtersApplied = {
+    "country": true,
+    "city": true,
+    "poi": true,
+  };
+  List<Marker> markers = [
+    Marker(
+      point: LatLng(38.81, -9.17),
+      width: 40,
+      height: 40,
+      child: FlutterLogo(),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -112,15 +125,30 @@ class _MainAppState extends State<MainApp> {
         body: Stack(
           children: [
             FlutterMap(
-              options: const MapOptions(
-                initialCenter: LatLng(38.81, -9.17),
-                initialZoom: 10,
-              ),
+              options: MapOptions(
+                  initialCenter: LatLng(38.81, -9.17),
+                  initialZoom: 10,
+                  onLongPress: (tapPosition, point) {
+                    print('Tapped at $point');
+                    setState(() {
+                      markers.add(
+                        Marker(
+                          point: point,
+                          width: 40,
+                          height: 40,
+                          child: FlutterLogo(),
+                        ),
+                      );
+                    });
+                  }),
               children: [
                 TileLayer(
                   urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                   userAgentPackageName: "com.claudiolamelas.trippins",
-                )
+                ),
+                MarkerLayer(
+                  markers: markers,
+                ),
               ],
             ),
             Visibility(
@@ -129,25 +157,53 @@ class _MainAppState extends State<MainApp> {
                 top: 100,
                 left: 5,
                 child: PopupMenuButton<String>(
-                  initialValue: "SampleItem.itemOne",
                   onSelected: (String item) {
                     setState(() {
                       //selectedItem = item;
                     });
                   },
+                  //color: Color.fromARGB(143, 0, 0, 0),
+                  position: PopupMenuPosition.under,
+                  offset: const Offset(0, 10),
                   itemBuilder: (BuildContext context) =>
                       <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: "SampleItem.itemOne",
-                      child: Text('Item 1'),
+                    PopupMenuItem<String>(
+                      value: "country",
+                      child: Row(children: [
+                        Checkbox(
+                          value: filtersApplied["country"],
+                          onChanged: (bool? value) {
+                            setState(() {
+                              filtersApplied.update(
+                                  "country", (current) => value ?? false);
+                            });
+                          },
+                          activeColor: const Color.fromARGB(255, 0, 0, 0),
+                        ),
+                        const Text('Country'),
+                      ]),
                     ),
-                    const PopupMenuItem<String>(
-                      value: "SampleItem.itemTwo",
-                      child: Text('Item 2'),
+                    PopupMenuItem<String>(
+                      value: "city",
+                      child: Row(children: [
+                        Checkbox(
+                          value: true,
+                          onChanged: (bool? value) {},
+                          activeColor: const Color.fromARGB(255, 0, 0, 0),
+                        ),
+                        const Text('City'),
+                      ]),
                     ),
-                    const PopupMenuItem<String>(
-                      value: "SampleItem.itemThree",
-                      child: Text('Item 3'),
+                    PopupMenuItem<String>(
+                      value: "poi",
+                      child: Row(children: [
+                        Checkbox(
+                          value: true,
+                          onChanged: (bool? value) {},
+                          activeColor: const Color.fromARGB(255, 0, 0, 0),
+                        ),
+                        const Text('POI'),
+                      ]),
                     ),
                   ],
                   icon: const Icon(Icons.layers_rounded),
@@ -173,7 +229,7 @@ class _MainAppState extends State<MainApp> {
                     viewModeActive = !viewModeActive;
                     showViewModeBar = true;
                   });
-                  Timer(Duration(seconds: 2), () {
+                  Timer(Duration(seconds: 1), () {
                     if (viewModeActive) {
                       setState(() {
                         showViewModeBar = false;
@@ -182,8 +238,8 @@ class _MainAppState extends State<MainApp> {
                   });
                 },
                 icon: !viewModeActive
-                    ? const Icon(Icons.remove_red_eye_rounded)
-                    : const Icon(Icons.cancel_rounded),
+                    ? const Icon(Icons.visibility_rounded)
+                    : const Icon(Icons.visibility_off_rounded),
                 style: const ButtonStyle(
                   backgroundColor:
                       WidgetStatePropertyAll(Color.fromARGB(143, 0, 0, 0)),
