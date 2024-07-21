@@ -9,20 +9,33 @@ class PinBottomSheetInfo extends StatefulWidget {
   State<PinBottomSheetInfo> createState() => _PinBottomSheetInfoState();
 }
 
-class _PinBottomSheetInfoState extends State<PinBottomSheetInfo> {
+class _PinBottomSheetInfoState extends State<PinBottomSheetInfo>
+    with TickerProviderStateMixin {
   final _sheet = GlobalKey();
   final _controller = DraggableScrollableController();
   late PageController _pageViewController;
+  late TabController _tabController;
+  PinViewMode currentPinViewMode = PinViewMode.standard;
 
   @override
   void initState() {
     super.initState();
     _controller.addListener(_onChanged);
     _pageViewController = PageController();
+    _tabController =
+        TabController(vsync: this, length: widget.selectedPin.pinsData.length);
+  }
+
+  @override
+  void didUpdateWidget(covariant PinBottomSheetInfo oldWidget) {
+    _tabController =
+        TabController(vsync: this, length: widget.selectedPin.pinsData.length);
+    super.didUpdateWidget(oldWidget);
   }
 
   void _onChanged() {
     final currentSize = _controller.size;
+    currentPinViewMode = _getPinViewMode();
     if (currentSize <= 0.05) _collapse();
   }
 
@@ -47,10 +60,23 @@ class _PinBottomSheetInfoState extends State<PinBottomSheetInfo> {
     super.dispose();
     _controller.dispose();
     _pageViewController.dispose();
+    _tabController.dispose();
   }
 
   DraggableScrollableSheet get sheet =>
       (_sheet.currentWidget as DraggableScrollableSheet);
+
+  void onPinViewChanged(int index) {
+    _tabController.index = index;
+  }
+
+  PinViewMode _getPinViewMode() {
+    return _controller.size == sheet.snapSizes!.first
+        ? PinViewMode.collapsed
+        : _controller.size == sheet.snapSizes!.last
+            ? PinViewMode.standard
+            : PinViewMode.expanded;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +102,28 @@ class _PinBottomSheetInfoState extends State<PinBottomSheetInfo> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: PinView(data: widget.selectedPin.pinsData.first)),
+                controller: scrollController,
+                child: Column(
+                  children: [
+                    TabPageSelector(
+                      controller: _tabController,
+                    ),
+                    SizedBox(
+                      height: constraints.maxHeight,
+                      child: PageView(
+                        onPageChanged: onPinViewChanged,
+                        controller: _pageViewController,
+                        children: widget.selectedPin.pinsData
+                            .map((pin) => PinView(
+                                  data: pin,
+                                  currentViewMode: currentPinViewMode,
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -86,20 +132,34 @@ class _PinBottomSheetInfoState extends State<PinBottomSheetInfo> {
   }
 }
 
-// PageView(
-//                   controller: _pageViewController,
-//                   children: widget.selectedPin.pinsData
-//                       .map((pin) => PinView(data: pin))
-//                       .toList(),
-//                 ),
+enum PinViewMode {
+  collapsed,
+  standard,
+  expanded,
+}
 
 class PinView extends StatelessWidget {
   const PinView({
     super.key,
     required this.data,
+    required this.currentViewMode,
   });
 
   final PinData data;
+  final PinViewMode currentViewMode;
+
+  Widget _getPinViewBasedOnHeight() {
+    switch (currentViewMode) {
+      case PinViewMode.collapsed:
+        return Container();
+      case PinViewMode.standard:
+        return Container();
+      case PinViewMode.expanded:
+        return Container();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
