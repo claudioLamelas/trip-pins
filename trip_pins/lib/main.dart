@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:trip_pins/common/pin_bottom_sheet_info.dart';
 import 'package:trip_pins/common/positioned_button.dart';
+import 'package:trip_pins/data_types/pin.dart';
 import 'package:trip_pins/firebase_options.dart';
 import 'package:trip_pins/left_drawer.dart';
 import 'package:trip_pins/maps/read_only_map.dart';
@@ -34,6 +36,18 @@ class _MainAppState extends State<MainApp> {
     "poi": true,
   };
 
+  Pin? selectedPin;
+
+  void selectPin(Pin pin) {
+    setState(() {
+      if (selectedPin?.pinLocation == pin.pinLocation) {
+        selectedPin = null;
+      } else {
+        selectedPin = pin;
+      }
+    });
+  }
+
   void changeViewModeStatus() {
     setState(() {
       viewModeActive = !viewModeActive;
@@ -60,7 +74,9 @@ class _MainAppState extends State<MainApp> {
         drawer: const LeftDrawer(),
         body: Stack(
           children: [
-            const ReadOnlyMap(),
+            ReadOnlyMap(
+              onMarkerTap: selectPin,
+            ),
             Visibility(
               visible: !viewModeActive,
               child: Positioned(
@@ -116,7 +132,7 @@ class _MainAppState extends State<MainApp> {
               ),
             ),
             PositionedButton(
-              bottom: 50,
+              bottom: 90,
               left: 5,
               icon: Icons.visibility_rounded,
               alternativeStateIcon: Icons.visibility_off_rounded,
@@ -124,7 +140,10 @@ class _MainAppState extends State<MainApp> {
               isInAlternativeState: viewModeActive,
               onPressed: changeViewModeStatus,
               isVisible: true,
-            )
+            ),
+            selectedPin != null
+                ? PinBottomSheetInfo(selectedPin: selectedPin!)
+                : const SizedBox.shrink(),
           ],
         ),
       ),
