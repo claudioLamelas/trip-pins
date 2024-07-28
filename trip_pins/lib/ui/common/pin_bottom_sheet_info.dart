@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trip_pins/data_types/pin.dart';
+import 'package:trip_pins/data/pin.dart';
 
 class PinBottomSheetInfo extends StatefulWidget {
   final Pin selectedPin;
@@ -35,8 +35,10 @@ class _PinBottomSheetInfoState extends State<PinBottomSheetInfo>
 
   void _onChanged() {
     final currentSize = _controller.size;
-    currentPinViewMode = _getPinViewMode();
     if (currentSize <= 0.05) _collapse();
+    // setState(() {
+    //   currentPinViewMode = _getPinViewMode();
+    // });
   }
 
   void _collapse() => _animateSheet(sheet.snapSizes!.first);
@@ -116,7 +118,7 @@ class _PinBottomSheetInfoState extends State<PinBottomSheetInfo>
                         children: widget.selectedPin.pinsData
                             .map((pin) => PinView(
                                   data: pin,
-                                  currentViewMode: currentPinViewMode,
+                                  currentViewMode: 2,
                                 ))
                             .toList(),
                       ),
@@ -146,21 +148,9 @@ class PinView extends StatelessWidget {
   });
 
   final PinData data;
-  final PinViewMode currentViewMode;
+  final double currentViewMode;
 
-  Widget _getPinViewBasedOnHeight() {
-    switch (currentViewMode) {
-      case PinViewMode.collapsed:
-        return Container();
-      case PinViewMode.standard:
-        return Container();
-      case PinViewMode.expanded:
-        return Container();
-      default:
-        return const SizedBox.shrink();
-    }
-  }
-
+  // Widget _getPinViewBasedOnHeight() {
   @override
   Widget build(BuildContext context) {
     return Column(

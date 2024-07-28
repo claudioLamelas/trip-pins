@@ -1,5 +1,5 @@
 import 'package:latlong2/latlong.dart';
-import 'package:trip_pins/data_types/pin.dart';
+import 'package:trip_pins/data/pin.dart';
 
 class MockData {
   static List<Pin> getPins() {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trip_pins/data_types/pin.dart';
+import 'package:trip_pins/data/pin.dart';
 
 class TripPin extends StatelessWidget {
   final Pin? pin;

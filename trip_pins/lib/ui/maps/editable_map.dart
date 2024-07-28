@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:trip_pins/data_types/mock_data.dart';
-import 'package:trip_pins/maps/pin_marker.dart';
-import 'package:trip_pins/maps/trip_pin.dart';
+import 'package:trip_pins/data/mock_data.dart';
+import 'package:trip_pins/ui/maps/pin_marker.dart';
+import 'package:trip_pins/ui/maps/trip_pin.dart';
 
 class EditableMap extends StatefulWidget {
   const EditableMap({super.key});

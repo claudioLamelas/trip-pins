@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trip_pins/ui/pages/add_trip_page.dart';
 
 import '../styles.dart';
 
@@ -59,7 +61,12 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             ElevatedButton.icon(
               style: Styles.primaryButton(width: 100, height: 30),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => const AddTripPage()));
+              },
               label: const Text("Add"),
               iconAlignment: IconAlignment.start,
               icon: const Icon(Icons.add),
