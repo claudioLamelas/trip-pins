@@ -6,6 +6,7 @@ class TextFieldInput extends StatelessWidget {
   final int flex;
   final bool isMultiLine;
   final bool isReadOnly;
+  final Widget? prefixIcon;
   final Widget? suffixIcon;
   final TextEditingController? controller;
 
@@ -14,6 +15,7 @@ class TextFieldInput extends StatelessWidget {
     required this.labelText,
     required this.flex,
     this.isMultiLine = false,
+    this.prefixIcon,
     this.suffixIcon,
     this.initialValue,
     this.isReadOnly = false,
@@ -25,7 +27,7 @@ class TextFieldInput extends StatelessWidget {
     return Expanded(
       flex: flex,
       child: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: TextFormField(
           controller: controller,
           initialValue: initialValue,
@@ -34,8 +36,8 @@ class TextFieldInput extends StatelessWidget {
           minLines: isMultiLine ? null : 1,
           decoration: InputDecoration(
               labelText: labelText,
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.search_rounded),
+              border: const OutlineInputBorder(),
+              prefixIcon: prefixIcon,
               suffixIcon: suffixIcon),
         ),
       ),

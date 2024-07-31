@@ -168,7 +168,9 @@ class _AddTripPageState extends State<AddTripPage> {
                             context,
                             CupertinoPageRoute(
                                 builder: (context) => AddPinPage(
-                                    tripName: tripNameController.text)));
+                                      tripName: tripNameController.text,
+                                      tripDates: tripDates,
+                                    )));
                       },
                       label: const Text("Add Pin"),
                       icon: const Icon(Icons.add),
