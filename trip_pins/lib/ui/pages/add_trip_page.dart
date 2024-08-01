@@ -108,7 +108,7 @@ class _AddTripPageState extends State<AddTripPage> {
                   TextFieldInput(
                     controller: tripDatesController,
                     isReadOnly: true,
-                    labelText: "Trip Dates",
+                    labelText: "Trip Date(s)",
                     flex: 3,
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.calendar_month_rounded),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:trip_pins/ui/app_bars/info_app_bar.dart';
+import 'package:trip_pins/ui/common/image_container.dart';
 import 'package:trip_pins/ui/common/text_field_input.dart';
 import 'package:trip_pins/ui/styles.dart';
 
@@ -13,6 +15,7 @@ class AddPinPage extends StatefulWidget {
 }
 
 class _AddPinPageState extends State<AddPinPage> {
+  final ImagePicker _picker = ImagePicker();
   late TextEditingController pinDatesController;
   late String tripName = widget.tripName;
   DateTimeRange? pinDates;
@@ -39,19 +42,25 @@ class _AddPinPageState extends State<AddPinPage> {
         : "${dateRange.start.year}/${dateRange.start.month.toString().padLeft(2, '0')}/${dateRange.start.day.toString().padLeft(2, '0')} - ${dateRange.end.year}/${dateRange.end.month.toString().padLeft(2, '0')}/${dateRange.end.day.toString().padLeft(2, '0')}";
   }
 
-  void addImage() {
-    Widget newImage = Container(
-      height: 30,
-      width: 30,
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(5),
-        ),
-        color: Colors.red,
-      ),
-    );
+  Future addImage() async {
+    // Widget newImage = Container(
+    //   height: 30,
+    //   width: 30,
+    //   decoration: const BoxDecoration(
+    //     borderRadius: BorderRadius.all(
+    //       Radius.circular(5),
+    //     ),
+    //     color: Colors.red,
+    //   ),
+    // );
+    final List<XFile> pickedFiles = await _picker.pickMultiImage();
+
+    // Widget newImage = ImageContainer(file: ,);
     setState(() {
-      images = [...images, newImage];
+      images = [
+        ...images,
+        ...pickedFiles.map((pickedFile) => ImageContainer(file: pickedFile))
+      ];
     });
   }
 
@@ -140,7 +149,7 @@ class _AddPinPageState extends State<AddPinPage> {
               const Divider(),
               ListView.separated(
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+                  //physics: const NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   itemCount: notes.length + 1,
                   separatorBuilder: (BuildContext context, int index) {
