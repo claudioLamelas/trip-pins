@@ -8,7 +8,9 @@ import 'package:trip_pins/ui/maps/trip_pin.dart';
 
 class ReadOnlyMap extends StatefulWidget {
   final void Function(Pin) onMarkerTap;
-  const ReadOnlyMap({super.key, required this.onMarkerTap});
+  final void Function() onMapTap;
+  const ReadOnlyMap(
+      {super.key, required this.onMarkerTap, required this.onMapTap});
 
   @override
   State<ReadOnlyMap> createState() => _ReadOnlyMapState();
@@ -38,10 +40,12 @@ class _ReadOnlyMapState extends State<ReadOnlyMap> {
   @override
   Widget build(BuildContext context) {
     return FlutterMap(
-      options: const MapOptions(
-        initialCenter: LatLng(38.81, -9.17),
-        initialZoom: 10,
-      ),
+      options: MapOptions(
+          initialCenter: LatLng(38.81, -9.17),
+          initialZoom: 10,
+          onTap: (position, point) {
+            widget.onMapTap();
+          }),
       children: [
         TileLayer(
           urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",

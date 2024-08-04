@@ -11,7 +11,9 @@ class TripPin extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        onTapCallback(pin!);
+        if (pin != null) {
+          onTapCallback(pin!);
+        }
       },
       child: Container(
           width: 90, height: 90, color: Colors.blue, child: FlutterLogo()),

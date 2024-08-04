@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:trip_pins/ui/app_bars/info_app_bar.dart';
 import 'package:trip_pins/ui/common/text_field_input.dart';
 import 'package:trip_pins/ui/maps/read_only_map.dart';
+import 'package:trip_pins/ui/pages/add_pin_location_page.dart';
 import 'package:trip_pins/ui/pages/add_pin_page.dart';
 import 'package:trip_pins/ui/styles.dart';
 
@@ -18,9 +20,8 @@ class _AddTripPageState extends State<AddTripPage> {
   final TextEditingController tripNameController = TextEditingController();
   late TextEditingController tripDatesController;
 
-  bool shouldDatesBeEmpty = true;
-  DateTimeRange tripDates =
-      DateTimeRange(start: DateTime.now(), end: DateTime.now());
+  //bool shouldDatesBeEmpty = true;
+  DateTimeRange? tripDates;
 
   Color pickerColor = Colors.blue;
   Color pinColor = Colors.red;
@@ -35,7 +36,6 @@ class _AddTripPageState extends State<AddTripPage> {
     if (range != null) {
       setState(() {
         tripDates = range;
-        shouldDatesBeEmpty = false;
       });
     }
   }
@@ -78,17 +78,16 @@ class _AddTripPageState extends State<AddTripPage> {
     );
   }
 
-  String _buildTripDatePeriod(
-      DateTimeRange dateRange, bool shouldBeEmptyValue) {
-    return shouldBeEmptyValue
+  String _buildTripDatePeriod(DateTimeRange? dateRange) {
+    return dateRange == null
         ? ""
         : "${dateRange.start.year}/${dateRange.start.month.toString().padLeft(2, '0')}/${dateRange.start.day.toString().padLeft(2, '0')} - ${dateRange.end.year}/${dateRange.end.month.toString().padLeft(2, '0')}/${dateRange.end.day.toString().padLeft(2, '0')}";
   }
 
   @override
   Widget build(BuildContext context) {
-    tripDatesController = TextEditingController(
-        text: _buildTripDatePeriod(tripDates, shouldDatesBeEmpty));
+    tripDatesController =
+        TextEditingController(text: _buildTripDatePeriod(tripDates));
 
     return Scaffold(
       extendBodyBehindAppBar: false,
@@ -188,7 +187,20 @@ class _AddTripPageState extends State<AddTripPage> {
                     border: Border.all(color: Colors.black),
                   ),
                   child: Stack(children: [
-                    ReadOnlyMap(onMarkerTap: (pin) {}),
+                    ReadOnlyMap(
+                      onMarkerTap: (pin) {},
+                      onMapTap: () {
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => AddPinLocationPage(
+                                tripName: tripNameController.text,
+                                onLocationSelected: (LatLng location) {},
+                                shouldGoToAddPinPage: true,
+                              ),
+                            ));
+                      },
+                    ),
                     const Positioned(top: 5, left: 5, child: Text("Pins")),
                   ]),
                 ),

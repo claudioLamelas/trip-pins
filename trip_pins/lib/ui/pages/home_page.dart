@@ -64,6 +64,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           ReadOnlyMap(
             onMarkerTap: selectPin,
+            onMapTap: () {},
           ),
           Visibility(
             visible: !viewModeActive,
