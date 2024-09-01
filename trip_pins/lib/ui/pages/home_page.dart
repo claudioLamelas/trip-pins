@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
 
   void selectPin(Pin pin) {
     setState(() {
-      if (selectedPin?.pinLocation == pin.pinLocation) {
+      if (selectedPin?.location == pin.location) {
         selectedPin = null;
       } else {
         selectedPin = pin;
@@ -63,6 +63,7 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           ReadOnlyMap(
+            pins: const [],
             onMarkerTap: selectPin,
             onMapTap: () {},
           ),

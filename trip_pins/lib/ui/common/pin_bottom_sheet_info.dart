@@ -22,14 +22,12 @@ class _PinBottomSheetInfoState extends State<PinBottomSheetInfo>
     super.initState();
     _controller.addListener(_onChanged);
     _pageViewController = PageController();
-    _tabController =
-        TabController(vsync: this, length: widget.selectedPin.pinsData.length);
+    _tabController = TabController(vsync: this, length: 1);
   }
 
   @override
   void didUpdateWidget(covariant PinBottomSheetInfo oldWidget) {
-    _tabController =
-        TabController(vsync: this, length: widget.selectedPin.pinsData.length);
+    _tabController = TabController(vsync: this, length: 1);
     super.didUpdateWidget(oldWidget);
   }
 
@@ -115,12 +113,9 @@ class _PinBottomSheetInfoState extends State<PinBottomSheetInfo>
                       child: PageView(
                         onPageChanged: onPinViewChanged,
                         controller: _pageViewController,
-                        children: widget.selectedPin.pinsData
-                            .map((pin) => PinView(
-                                  data: pin,
-                                  currentViewMode: 2,
-                                ))
-                            .toList(),
+                        children: [
+                          PinView(data: widget.selectedPin, currentViewMode: 2)
+                        ],
                       ),
                     ),
                   ],
@@ -147,7 +142,7 @@ class PinView extends StatelessWidget {
     required this.currentViewMode,
   });
 
-  final PinData data;
+  final Pin data;
   final double currentViewMode;
 
   // Widget _getPinViewBasedOnHeight() {
@@ -158,15 +153,15 @@ class PinView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(data.pinName),
-            Text(data.pinStartDate),
-            Text(data.pinEndDate),
+            Text(data.name ?? ""),
+            Text(data.dates?.start.toString() ?? ""),
+            Text(data.dates?.end.toString() ?? ""),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(data.tripName),
+            const Text("Future Trip Name WIP"),
             Text(data.notes.length.toString()),
             Text(data.photos.length.toString())
           ],

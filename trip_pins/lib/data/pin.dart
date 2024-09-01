@@ -1,28 +1,20 @@
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 
 class Pin {
-  final LatLng pinLocation;
-  final List<PinData> pinsData;
+  LatLng? location;
+  String? name;
+  DateTimeRange? dates;
+  List<XFile> photos;
+  List<String> notes;
 
-  const Pin({
-    required this.pinLocation,
-    required this.pinsData,
-  });
-}
-
-class PinData {
-  final String pinName;
-  final String pinStartDate;
-  final String pinEndDate;
-  final String tripName;
-  final List<String> photos;
-  final List<String> notes;
-
-  const PinData(
-      {required this.pinName,
-      required this.pinStartDate,
-      required this.pinEndDate,
-      required this.tripName,
-      required this.photos,
-      required this.notes});
+  Pin({
+    this.location,
+    this.name,
+    this.dates,
+    List<XFile>? photos, // Make photos optional
+    List<String>? notes, // Make notes optional
+  })  : photos = photos ?? [], // Use null-aware operator to provide default
+        notes = notes ?? [];
 }

@@ -1,15 +1,18 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:trip_pins/data/pin.dart';
 import 'package:trip_pins/ui/maps/pin_marker.dart';
+import 'package:trip_pins/ui/maps/trip_pin.dart';
+import 'package:trip_pins/ui/pages/add_pin_page.dart';
 
 class EditableMap extends StatefulWidget {
-  final List<PinMarker> currentMarkers;
+  final List<Pin> currentPins;
   final void Function(LatLng location) onLocationSelected;
   final bool shouldGoToAddPinPage;
   const EditableMap(
       {super.key,
-      required this.currentMarkers,
+      required this.currentPins,
       required this.onLocationSelected,
       this.shouldGoToAddPinPage = false});
 
@@ -18,38 +21,27 @@ class EditableMap extends StatefulWidget {
 }
 
 class _EditableMapState extends State<EditableMap> {
-  List<PinMarker> markers = [];
-  // List<PinMarker> markers = MockData.getPins()
-  //     .map((pin) => PinMarker(
-  //         point: pin.pinLocation,
-  //         child: TripPin(
-  //           pin: pin,
-  //           onTapCallback: (pin) {},
-  //         )))
-  //     .toList();
-
   @override
   void initState() {
-    markers = widget.currentMarkers;
     super.initState();
   }
 
-  void addMarker(TapPosition tapPosition, LatLng point) {
-    // setState(() {
-    //   markers.add(
-    //     PinMarker(
-    //       point: point,
-    //       child: TripPin(
-    //         pin: null,
-    //         onTapCallback: (pin) {},
-    //       ),
-    //     ),
-    //   );
-    // });
+  List<PinMarker> _createMarkers() {
+    return widget.currentPins
+        .map((pin) => PinMarker(
+            point: pin.location ?? const LatLng(0, 0),
+            child: TripPin(
+              pin: pin,
+              onTapCallback: (pin) {},
+            )))
+        .toList();
+  }
 
+  void addMarker(TapPosition tapPosition, LatLng point) {
     widget.onLocationSelected(point);
     if (widget.shouldGoToAddPinPage) {
-      //TODO: Implement the navigation
+      Navigator.push(context,
+          CupertinoPageRoute(builder: (context) => const AddPinPage()));
     } else {
       Navigator.pop(context);
     }
@@ -69,7 +61,7 @@ class _EditableMapState extends State<EditableMap> {
           userAgentPackageName: "com.claudiolamelas.trippins",
         ),
         MarkerLayer(
-          markers: markers,
+          markers: _createMarkers(),
         ),
       ],
     );

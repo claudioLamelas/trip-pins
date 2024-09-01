@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:trip_pins/data/mock_data.dart';
 import 'package:trip_pins/data/pin.dart';
 import 'package:trip_pins/ui/maps/pin_marker.dart';
 import 'package:trip_pins/ui/maps/trip_pin.dart';
@@ -9,30 +8,30 @@ import 'package:trip_pins/ui/maps/trip_pin.dart';
 class ReadOnlyMap extends StatefulWidget {
   final void Function(Pin) onMarkerTap;
   final void Function() onMapTap;
+  final List<Pin> pins;
   const ReadOnlyMap(
-      {super.key, required this.onMarkerTap, required this.onMapTap});
+      {super.key,
+      required this.onMarkerTap,
+      required this.onMapTap,
+      required this.pins});
 
   @override
   State<ReadOnlyMap> createState() => _ReadOnlyMapState();
 }
 
 class _ReadOnlyMapState extends State<ReadOnlyMap> {
-  List<PinMarker> markers = [];
-
   @override
   void initState() {
     super.initState();
-    _createMarkers();
   }
 
-  void _createMarkers() {
-    final onTapCallback = widget.onMarkerTap;
-    markers = MockData.getPins()
+  List<PinMarker> _createMarkers() {
+    return widget.pins
         .map((pin) => PinMarker(
-            point: pin.pinLocation,
+            point: pin.location ?? const LatLng(0, 0),
             child: TripPin(
               pin: pin,
-              onTapCallback: onTapCallback,
+              onTapCallback: widget.onMarkerTap,
             )))
         .toList();
   }
@@ -52,7 +51,7 @@ class _ReadOnlyMapState extends State<ReadOnlyMap> {
           userAgentPackageName: "com.claudiolamelas.trippins",
         ),
         MarkerLayer(
-          markers: markers,
+          markers: _createMarkers(),
         ),
       ],
     );

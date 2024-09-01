@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import 'package:trip_pins/data/trip.dart';
+import 'package:trip_pins/providers/new_trip_provider.dart';
 import 'package:trip_pins/ui/app_bars/trip_pins_app_bar.dart';
 import 'package:trip_pins/ui/maps/editable_map.dart';
 
 class AddPinLocationPage extends StatefulWidget {
-  final String tripName;
   final void Function(LatLng location) onLocationSelected;
   final bool shouldGoToAddPinPage;
   const AddPinLocationPage(
       {super.key,
-      required this.tripName,
       required this.onLocationSelected,
       required this.shouldGoToAddPinPage});
 
@@ -20,16 +21,17 @@ class AddPinLocationPage extends StatefulWidget {
 class _AddPinLocationPageState extends State<AddPinLocationPage> {
   @override
   Widget build(BuildContext context) {
+    Trip trip = context.watch<NewTripProvider>().newTrip;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: TripPinsAppBar(
-        title: widget.tripName.isNotEmpty ? widget.tripName : "New Trip Name",
+        title: trip.name.isNotEmpty ? trip.name : "New Trip Name",
         currentlyAddingPin: true,
       ),
       body: Stack(
         children: [
           EditableMap(
-            currentMarkers: [],
+            currentPins: trip.pins,
             onLocationSelected: widget.onLocationSelected,
             shouldGoToAddPinPage: widget.shouldGoToAddPinPage,
           ),

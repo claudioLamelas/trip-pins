@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import 'package:trip_pins/data/trip.dart';
+import 'package:trip_pins/providers/new_trip_provider.dart';
 import 'package:trip_pins/ui/app_bars/info_app_bar.dart';
 import 'package:trip_pins/ui/common/text_field_input.dart';
 import 'package:trip_pins/ui/maps/read_only_map.dart';
@@ -9,39 +12,39 @@ import 'package:trip_pins/ui/pages/add_pin_location_page.dart';
 import 'package:trip_pins/ui/pages/add_pin_page.dart';
 import 'package:trip_pins/ui/styles.dart';
 
-class AddTripPage extends StatefulWidget {
-  const AddTripPage({super.key});
+class AddTripForm extends StatefulWidget {
+  const AddTripForm({super.key});
 
   @override
-  State<AddTripPage> createState() => _AddTripPageState();
+  State<AddTripForm> createState() => _AddTripFormState();
 }
 
-class _AddTripPageState extends State<AddTripPage> {
-  final TextEditingController tripNameController = TextEditingController();
+class _AddTripFormState extends State<AddTripForm> {
   late TextEditingController tripDatesController;
 
-  //bool shouldDatesBeEmpty = true;
-  DateTimeRange? tripDates;
+  @override
+  void initState() {
+    final NewTripProvider newTripProvider =
+        Provider.of<NewTripProvider>(context, listen: false);
+    super.initState();
+    tripDatesController = TextEditingController(
+        text: _buildTripDatePeriod(newTripProvider.newTrip.dates));
+  }
 
-  Color pickerColor = Colors.blue;
-  Color pinColor = Colors.red;
-
-  Future pickTripDates() async {
+  Future pickTripDates(DateTimeRange? initialDateRange) async {
     DateTimeRange? range = await showDateRangePicker(
         context: context,
-        initialDateRange: tripDates,
+        initialDateRange: initialDateRange,
         firstDate: DateTime(1900, 1, 1),
         lastDate: DateTime(2100, 12, 12));
 
-    if (range != null) {
-      setState(() {
-        tripDates = range;
-      });
+    if (mounted) {
+      context.read<NewTripProvider>().setTripDates(range);
     }
   }
 
   void changeColor(Color color) {
-    setState(() => pickerColor = color);
+    context.read<NewTripProvider>().setTripPinsColor(color);
   }
 
   Future<void> _colorPickerBuilder(BuildContext context) {
@@ -49,10 +52,10 @@ class _AddTripPageState extends State<AddTripPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Basic dialog title'),
+          title: const Text('Choose a color for the pins'),
           content: SingleChildScrollView(
             child: ColorPicker(
-              pickerColor: pickerColor,
+              pickerColor: context.watch<NewTripProvider>().newTrip.pinColor,
               onColorChanged: changeColor,
               enableAlpha: false,
               paletteType: PaletteType.hsl,
@@ -66,9 +69,6 @@ class _AddTripPageState extends State<AddTripPage> {
               ),
               child: const Text('Choose Color'),
               onPressed: () {
-                setState(() {
-                  pinColor = pickerColor;
-                });
                 Navigator.of(context).pop();
               },
             ),
@@ -84,11 +84,14 @@ class _AddTripPageState extends State<AddTripPage> {
         : "${dateRange.start.year}/${dateRange.start.month.toString().padLeft(2, '0')}/${dateRange.start.day.toString().padLeft(2, '0')} - ${dateRange.end.year}/${dateRange.end.month.toString().padLeft(2, '0')}/${dateRange.end.day.toString().padLeft(2, '0')}";
   }
 
+  void initiateNewPinWithLocation(LatLng location) {
+    context.read<NewTripProvider>().setPinLocation(location);
+  }
+
   @override
   Widget build(BuildContext context) {
-    tripDatesController =
-        TextEditingController(text: _buildTripDatePeriod(tripDates));
-
+    Trip trip = context.watch<NewTripProvider>().newTrip;
+    tripDatesController.text = _buildTripDatePeriod(trip.dates);
     return Scaffold(
       extendBodyBehindAppBar: false,
       appBar: const InfoAppBar(title: "Add Trip"),
@@ -98,27 +101,41 @@ class _AddTripPageState extends State<AddTripPage> {
           child: Column(
             children: [
               TextFieldInput(
-                labelText: "Trip Name",
+                labelText: "Name",
                 flex: 0,
-                controller: tripNameController,
+                onChanged: context.read<NewTripProvider>().setTripName,
               ),
+              Text(trip.name),
               Row(
                 children: [
                   TextFieldInput(
                     controller: tripDatesController,
                     isReadOnly: true,
-                    labelText: "Trip Date(s)",
+                    labelText: "Date(s)",
                     flex: 3,
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.calendar_month_rounded),
-                      onPressed: pickTripDates,
+                      onPressed: () => pickTripDates(trip.dates),
                     ),
                   ),
-                  const TextFieldInput(labelText: "Trip Score", flex: 1),
+                  TextFieldInput(
+                    textInputType: TextInputType.number,
+                    labelText: "Score",
+                    textAlign: TextAlign.center,
+                    flex: 1,
+                    onChanged: (value) =>
+                        context.read<NewTripProvider>().setTripScore(value),
+                  ),
                 ],
               ),
-              const TextFieldInput(
-                  labelText: "Description", flex: 0, isMultiLine: true),
+              TextFieldInput(
+                textInputType: TextInputType.multiline,
+                labelText: "Description",
+                flex: 0,
+                isMultiLine: true,
+                onChanged: (value) =>
+                    context.read<NewTripProvider>().setTripDescription(value),
+              ),
               Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
@@ -150,7 +167,7 @@ class _AddTripPageState extends State<AddTripPage> {
                         decoration: BoxDecoration(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(3)),
-                          color: pinColor,
+                          color: trip.pinColor,
                         ),
                       ),
                     ),
@@ -166,10 +183,7 @@ class _AddTripPageState extends State<AddTripPage> {
                         Navigator.push(
                             context,
                             CupertinoPageRoute(
-                                builder: (context) => AddPinPage(
-                                      tripName: tripNameController.text,
-                                      tripDates: tripDates,
-                                    )));
+                                builder: (context) => const AddPinPage()));
                       },
                       label: const Text("Add Pin"),
                       icon: const Icon(Icons.add),
@@ -188,14 +202,14 @@ class _AddTripPageState extends State<AddTripPage> {
                   ),
                   child: Stack(children: [
                     ReadOnlyMap(
+                      pins: trip.pins,
                       onMarkerTap: (pin) {},
                       onMapTap: () {
                         Navigator.push(
                             context,
                             CupertinoPageRoute(
                               builder: (context) => AddPinLocationPage(
-                                tripName: tripNameController.text,
-                                onLocationSelected: (LatLng location) {},
+                                onLocationSelected: initiateNewPinWithLocation,
                                 shouldGoToAddPinPage: true,
                               ),
                             ));
@@ -213,6 +227,7 @@ class _AddTripPageState extends State<AddTripPage> {
                     child: ElevatedButton(
                       style: Styles.primaryButton(width: 125, height: 30),
                       onPressed: () {
+                        context.read<NewTripProvider>().clearTripInformation();
                         Navigator.pop(context);
                       },
                       child: const Text("Cancel"),
@@ -233,5 +248,14 @@ class _AddTripPageState extends State<AddTripPage> {
         ),
       ),
     );
+  }
+}
+
+class AddTripPage extends StatelessWidget {
+  const AddTripPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const AddTripForm();
   }
 }

@@ -2,6 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import 'package:trip_pins/data/pin.dart';
+import 'package:trip_pins/data/trip.dart';
+import 'package:trip_pins/providers/new_trip_provider.dart';
 import 'package:trip_pins/ui/app_bars/info_app_bar.dart';
 import 'package:trip_pins/ui/common/image_container.dart';
 import 'package:trip_pins/ui/common/text_field_input.dart';
@@ -9,11 +13,11 @@ import 'package:trip_pins/ui/pages/add_pin_location_page.dart';
 import 'package:trip_pins/ui/styles.dart';
 
 class AddPinPage extends StatefulWidget {
-  final String tripName;
+  final String? tripName;
   final LatLng? pinCoordinates;
   final DateTimeRange? tripDates;
   const AddPinPage(
-      {super.key, required this.tripName, this.tripDates, this.pinCoordinates});
+      {super.key, this.tripName, this.tripDates, this.pinCoordinates});
 
   @override
   State<AddPinPage> createState() => _AddPinPageState();
@@ -23,30 +27,23 @@ class _AddPinPageState extends State<AddPinPage> {
   final ImagePicker _picker = ImagePicker();
   late TextEditingController pinLocationController;
   late TextEditingController pinDatesController;
-  late String tripName = widget.tripName;
-  DateTimeRange? pinDates;
-  List<Widget> images = [];
-  List<Widget> notes = [];
-
-  LatLng? currentPinLocation;
 
   @override
   void initState() {
-    currentPinLocation = widget.pinCoordinates;
     super.initState();
   }
 
-  Future pickPinDates() async {
+  Future pickPinDates(DateTimeRange? pinDates) async {
+    Trip currentNewTrip =
+        Provider.of<NewTripProvider>(context, listen: false).newTrip;
     DateTimeRange? range = await showDateRangePicker(
         context: context,
         initialDateRange: pinDates,
-        firstDate: widget.tripDates?.start ?? DateTime(1900, 1, 1),
-        lastDate: widget.tripDates?.end ?? DateTime(2100, 12, 12));
+        firstDate: currentNewTrip.dates?.start ?? DateTime(1900, 1, 1),
+        lastDate: currentNewTrip.dates?.end ?? DateTime(2100, 12, 12));
 
-    if (range != null) {
-      setState(() {
-        pinDates = range;
-      });
+    if (mounted) {
+      context.read<NewTripProvider>().setPinDates(range);
     }
   }
 
@@ -58,82 +55,44 @@ class _AddPinPageState extends State<AddPinPage> {
 
   Future addImage() async {
     final List<XFile> pickedFiles = await _picker.pickMultiImage();
-    setState(() {
-      images = [
-        ...images,
-        ...pickedFiles.map((pickedFile) => ImageContainer(
-              file: pickedFile,
-              onDeleteCallback: removeImage,
-            ))
-      ];
-    });
+    if (mounted) {
+      context.read<NewTripProvider>().addPinPhoto(pickedFiles);
+    }
   }
 
   void removeImage(ImageContainer imageToRemove) {
-    setState(() {
-      images = images.where((image) => image != imageToRemove).toList();
-    });
+    context.read<NewTripProvider>().removePinPhoto(imageToRemove.file);
   }
 
   void addNote() {
-    Widget newNote = Container(
-      height: 30,
-      width: 30,
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(5),
-        ),
-        color: Colors.red,
-      ),
-    );
-    setState(() {
-      notes = [...notes, newNote];
-    });
+    context.read<NewTripProvider>().addPinNote("");
   }
 
   void updatePinLocation(LatLng location) {
-    setState(() {
-      currentPinLocation = location;
-    });
+    context.read<NewTripProvider>().setPinLocation(location);
   }
 
   @override
   Widget build(BuildContext context) {
+    Pin pin = context.watch<NewTripProvider>().newPin;
     pinDatesController =
-        TextEditingController(text: _buildTripDatePeriod(pinDates));
+        TextEditingController(text: _buildTripDatePeriod(pin.dates));
 
     pinLocationController = TextEditingController(
-        text: currentPinLocation != null
-            ? "${currentPinLocation?.latitude}, ${currentPinLocation?.longitude}"
+        text: pin.location != null
+            ? "${pin.location?.latitude}, ${pin.location?.longitude}"
             : "");
 
     return Scaffold(
       extendBodyBehindAppBar: false,
-      appBar:
-          InfoAppBar(title: tripName.isNotEmpty ? tripName : "New Trip Name"),
+      appBar: InfoAppBar(title: context.watch<NewTripProvider>().newTrip.name),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Row(
-              //   children: [
-              //     Padding(
-              //       padding: const EdgeInsets.all(8.0),
-              //       child: Container(
-              //         width: 150,
-              //         height: 150,
-              //         decoration: BoxDecoration(
-              //           borderRadius:
-              //               const BorderRadius.all(Radius.circular(5)),
-              //           border: Border.all(color: Colors.black),
-              //         ),
-              //         child: ReadOnlyMap(onMarkerTap: (pin) {}),
-              //       ),
-              //     ),
-              //   ],
-              // ),
               TextFieldInput(
+                isReadOnly: true,
                 controller: pinLocationController,
                 labelText: "Pin Location",
                 flex: 0,
@@ -141,19 +100,22 @@ class _AddPinPageState extends State<AddPinPage> {
                 suffixIcon: IconButton(
                     onPressed: () {
                       Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (context) => AddPinLocationPage(
-                                    tripName: widget.tripName,
-                                    onLocationSelected: updatePinLocation,
-                                    shouldGoToAddPinPage: false,
-                                  )));
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => AddPinLocationPage(
+                            onLocationSelected: updatePinLocation,
+                            shouldGoToAddPinPage: false,
+                          ),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.map)),
               ),
-              const TextFieldInput(
+              TextFieldInput(
                 labelText: "Pin Name",
                 flex: 0,
+                onChanged: (value) =>
+                    context.read<NewTripProvider>().setPinName(value),
               ),
               TextFieldInput(
                 controller: pinDatesController,
@@ -162,7 +124,7 @@ class _AddPinPageState extends State<AddPinPage> {
                 flex: 0,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.calendar_month_rounded),
-                  onPressed: pickPinDates,
+                  onPressed: () => pickPinDates(pin.dates),
                 ),
               ),
               const Divider(),
@@ -176,7 +138,10 @@ class _AddPinPageState extends State<AddPinPage> {
                   AddImageButton(
                     addImage: addImage,
                   ),
-                  ...images,
+                  ...pin.photos.map((photo) => ImageContainer(
+                        file: photo,
+                        onDeleteCallback: removeImage,
+                      )),
                 ],
               ),
               const Divider(),
@@ -184,15 +149,24 @@ class _AddPinPageState extends State<AddPinPage> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(vertical: 4),
-                  itemCount: notes.length + 1,
+                  itemCount: pin.notes.length + 1,
                   separatorBuilder: (BuildContext context, int index) {
                     return const SizedBox(height: 4);
                   },
                   itemBuilder: (BuildContext context, int index) {
                     if (index == 0) {
                       return AddNoteButton(addNote: addNote);
-                    } else if (notes.isNotEmpty) {
-                      return notes[index - 1];
+                    } else if (pin.notes.isNotEmpty) {
+                      return Container(
+                        height: 30,
+                        width: 30,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5),
+                          ),
+                          color: Colors.red,
+                        ),
+                      );
                     } else {
                       return null;
                     }
@@ -206,6 +180,7 @@ class _AddPinPageState extends State<AddPinPage> {
                     child: ElevatedButton(
                       style: Styles.primaryButton(width: 125, height: 30),
                       onPressed: () {
+                        context.read<NewTripProvider>().clearPinInformation();
                         Navigator.pop(context);
                       },
                       child: const Text("Cancel"),
@@ -215,7 +190,10 @@ class _AddPinPageState extends State<AddPinPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       style: Styles.primaryButton(width: 125, height: 30),
-                      onPressed: () {},
+                      onPressed: () {
+                        context.read<NewTripProvider>().addPin();
+                        Navigator.pop(context);
+                      },
                       child: const Text("Create"),
                     ),
                   ),

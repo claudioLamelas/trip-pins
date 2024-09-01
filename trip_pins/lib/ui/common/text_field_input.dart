@@ -8,7 +8,10 @@ class TextFieldInput extends StatelessWidget {
   final bool isReadOnly;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
+  final TextAlign textAlign;
+  final TextInputType textInputType;
   final TextEditingController? controller;
+  final void Function(String)? onChanged;
 
   const TextFieldInput({
     super.key,
@@ -19,7 +22,10 @@ class TextFieldInput extends StatelessWidget {
     this.suffixIcon,
     this.initialValue,
     this.isReadOnly = false,
+    this.textAlign = TextAlign.start,
     this.controller,
+    this.onChanged,
+    this.textInputType = TextInputType.text,
   });
 
   @override
@@ -29,6 +35,9 @@ class TextFieldInput extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: TextFormField(
+          textAlign: textAlign,
+          keyboardType: textInputType,
+          onChanged: onChanged,
           controller: controller,
           initialValue: initialValue,
           readOnly: isReadOnly,
