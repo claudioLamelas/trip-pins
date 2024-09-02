@@ -72,6 +72,13 @@ class _AddPinPageState extends State<AddPinPage> {
     context.read<NewTripProvider>().setPinLocation(location);
   }
 
+  bool isPinInformationValid(Pin pin) {
+    return pin.location != null &&
+        pin.level != null &&
+        pin.name.trim().isNotEmpty &&
+        pin.dates != null;
+  }
+
   @override
   Widget build(BuildContext context) {
     Pin pin = context.watch<NewTripProvider>().newPin;
@@ -86,93 +93,131 @@ class _AddPinPageState extends State<AddPinPage> {
     return Scaffold(
       extendBodyBehindAppBar: false,
       appBar: InfoAppBar(title: context.watch<NewTripProvider>().newTrip.name),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextFieldInput(
-                isReadOnly: true,
-                controller: pinLocationController,
-                labelText: "Pin Location",
-                flex: 0,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => AddPinLocationPage(
-                            onLocationSelected: updatePinLocation,
-                            shouldGoToAddPinPage: false,
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.map)),
-              ),
-              TextFieldInput(
-                labelText: "Pin Name",
-                flex: 0,
-                onChanged: (value) =>
-                    context.read<NewTripProvider>().setPinName(value),
-              ),
-              TextFieldInput(
-                controller: pinDatesController,
-                isReadOnly: true,
-                labelText: "Pin Date(s)",
-                flex: 0,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.calendar_month_rounded),
-                  onPressed: () => pickPinDates(pin.dates),
-                ),
-              ),
-              const Divider(),
-              GridView.count(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                crossAxisCount: 4,
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SingleChildScrollView(
+              child: Column(
                 children: [
-                  AddImageButton(
-                    addImage: addImage,
+                  TextFieldInput(
+                    isReadOnly: true,
+                    controller: pinLocationController,
+                    labelText: "Pin Location",
+                    flex: 0,
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => AddPinLocationPage(
+                                onLocationSelected: updatePinLocation,
+                                shouldGoToAddPinPage: false,
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.map)),
                   ),
-                  ...pin.photos.map((photo) => ImageContainer(
-                        file: photo,
-                        onDeleteCallback: removeImage,
-                      )),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: DropdownButtonFormField(
+                      items: const [
+                        DropdownMenuItem<PinLevel>(
+                            value: PinLevel.country, child: Text("Country")),
+                        DropdownMenuItem<PinLevel>(
+                            value: PinLevel.city, child: Text("City")),
+                        DropdownMenuItem<PinLevel>(
+                            value: PinLevel.poi, child: Text("POI")),
+                      ],
+                      onChanged: (level) =>
+                          context.read<NewTripProvider>().setPinLevel(level),
+                      decoration: const InputDecoration(
+                        labelText: "Pin Level",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  TextFieldInput(
+                    labelText: "Pin Name",
+                    flex: 0,
+                    onChanged: (value) =>
+                        context.read<NewTripProvider>().setPinName(value),
+                  ),
+                  TextFieldInput(
+                    controller: pinDatesController,
+                    isReadOnly: true,
+                    labelText: "Pin Date(s)",
+                    flex: 0,
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_month_rounded),
+                      onPressed: () => pickPinDates(pin.dates),
+                    ),
+                  ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GridView.count(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 4,
+                      mainAxisSpacing: 4,
+                      children: [
+                        AddImageButton(
+                          addImage: addImage,
+                        ),
+                        ...pin.photos.map((photo) => ImageContainer(
+                              file: photo,
+                              onDeleteCallback: removeImage,
+                            )),
+                      ],
+                    ),
+                  ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        itemCount: pin.notes.length + 1,
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(height: 4);
+                        },
+                        itemBuilder: (BuildContext context, int index) {
+                          if (index == 0) {
+                            return AddNoteButton(addNote: addNote);
+                          } else if (pin.notes.isNotEmpty) {
+                            return Container(
+                              height: 30,
+                              width: 30,
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(5),
+                                ),
+                                color: Colors.red,
+                              ),
+                            );
+                          } else {
+                            return null;
+                          }
+                        }),
+                  ),
+                  const Divider(),
                 ],
               ),
-              const Divider(),
-              ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  itemCount: pin.notes.length + 1,
-                  separatorBuilder: (BuildContext context, int index) {
-                    return const SizedBox(height: 4);
-                  },
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == 0) {
-                      return AddNoteButton(addNote: addNote);
-                    } else if (pin.notes.isNotEmpty) {
-                      return Container(
-                        height: 30,
-                        width: 30,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(5),
-                          ),
-                          color: Colors.red,
-                        ),
-                      );
-                    } else {
-                      return null;
-                    }
-                  }),
-              const Divider(),
-              Row(
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              decoration: const BoxDecoration(color: Colors.white),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Padding(
@@ -190,18 +235,20 @@ class _AddPinPageState extends State<AddPinPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       style: Styles.primaryButton(width: 125, height: 30),
-                      onPressed: () {
-                        context.read<NewTripProvider>().addPin();
-                        Navigator.pop(context);
-                      },
+                      onPressed: isPinInformationValid(pin)
+                          ? () {
+                              context.read<NewTripProvider>().addPin();
+                              Navigator.pop(context);
+                            }
+                          : null,
                       child: const Text("Create"),
                     ),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

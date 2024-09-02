@@ -88,6 +88,10 @@ class _AddTripFormState extends State<AddTripForm> {
     context.read<NewTripProvider>().setPinLocation(location);
   }
 
+  bool isTripInformationValid(Trip trip) {
+    return trip.name.trim().isNotEmpty && trip.dates != null;
+  }
+
   @override
   Widget build(BuildContext context) {
     Trip trip = context.watch<NewTripProvider>().newTrip;
@@ -105,7 +109,6 @@ class _AddTripFormState extends State<AddTripForm> {
                 flex: 0,
                 onChanged: context.read<NewTripProvider>().setTripName,
               ),
-              Text(trip.name),
               Row(
                 children: [
                   TextFieldInput(
@@ -237,7 +240,7 @@ class _AddTripFormState extends State<AddTripForm> {
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       style: Styles.primaryButton(width: 125, height: 30),
-                      onPressed: () {},
+                      onPressed: isTripInformationValid(trip) ? () {} : null,
                       child: const Text("Create"),
                     ),
                   ),

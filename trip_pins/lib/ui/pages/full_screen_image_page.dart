@@ -2,10 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:trip_pins/providers/new_trip_provider.dart';
 
 class FullScreenImagePage extends StatelessWidget {
   final XFile file;
-  const FullScreenImagePage({super.key, required this.file});
+  final bool canRemoveImage;
+  const FullScreenImagePage(
+      {super.key, required this.file, this.canRemoveImage = false});
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +27,25 @@ class FullScreenImagePage extends StatelessWidget {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            iconSize: 30,
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
+        leading: IconButton(
+          iconSize: 30,
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: canRemoveImage
+            ? [
+                IconButton(
+                  iconSize: 30,
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    context.read<NewTripProvider>().removePinPhoto(file);
+                    Navigator.pop(context);
+                  },
+                ),
+              ]
+            : [],
       ),
     );
   }

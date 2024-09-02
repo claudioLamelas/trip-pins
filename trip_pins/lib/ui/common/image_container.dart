@@ -28,6 +28,7 @@ class _ImageContainerState extends State<ImageContainer> {
             pageBuilder: (context, animation, secondaryAnimation) =>
                 FullScreenImagePage(
               file: widget.file,
+              canRemoveImage: true,
             ),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {

@@ -47,6 +47,11 @@ class NewTripProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setPinLevel(PinLevel? pinLevel) {
+    newPin.level = pinLevel;
+    notifyListeners();
+  }
+
   void setPinName(String pinName) {
     newPin.name = pinName;
     notifyListeners();
