@@ -153,7 +153,7 @@ class PinView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(data.name ?? ""),
+            Text(data.name),
             Text(data.dates?.start.toString() ?? ""),
             Text(data.dates?.end.toString() ?? ""),
           ],

@@ -8,7 +8,10 @@ import 'package:trip_pins/data/trip.dart';
 import 'package:trip_pins/providers/new_trip_provider.dart';
 import 'package:trip_pins/ui/app_bars/info_app_bar.dart';
 import 'package:trip_pins/ui/common/image_container.dart';
+import 'package:trip_pins/ui/common/note_container.dart';
+import 'package:trip_pins/ui/common/stack_with_bottom_buttons.dart';
 import 'package:trip_pins/ui/common/text_field_input.dart';
+import 'package:trip_pins/ui/pages/add_note_page.dart';
 import 'package:trip_pins/ui/pages/add_pin_location_page.dart';
 import 'package:trip_pins/ui/styles.dart';
 
@@ -64,8 +67,13 @@ class _AddPinPageState extends State<AddPinPage> {
     context.read<NewTripProvider>().removePinPhoto(imageToRemove.file);
   }
 
-  void addNote() {
-    context.read<NewTripProvider>().addPinNote("");
+  void addNote(String note) {
+    context.read<NewTripProvider>().addPinNote(note);
+    Navigator.pop(context);
+  }
+
+  void removeNote(int noteToRemoveIndex) {
+    context.read<NewTripProvider>().removeNote(noteToRemoveIndex);
   }
 
   void updatePinLocation(LatLng location) {
@@ -93,9 +101,8 @@ class _AddPinPageState extends State<AddPinPage> {
     return Scaffold(
       extendBodyBehindAppBar: false,
       appBar: InfoAppBar(title: context.watch<NewTripProvider>().newTrip.name),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
+      body: StackWithBottomButtons(
+        stackChildren: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: SingleChildScrollView(
@@ -189,63 +196,73 @@ class _AddPinPageState extends State<AddPinPage> {
                         },
                         itemBuilder: (BuildContext context, int index) {
                           if (index == 0) {
-                            return AddNoteButton(addNote: addNote);
+                            return AddNoteButton(addNote: () {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) => AddNotePage(
+                                    onNoteAdded: addNote,
+                                    isEditable: true,
+                                  ),
+                                ),
+                              );
+                            });
                           } else if (pin.notes.isNotEmpty) {
                             return Container(
-                              height: 30,
-                              width: 30,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(5),
+                                height: 60,
+                                //width: 30,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(5),
+                                  ),
+                                  border: Border.all(color: Colors.black),
+                                  // color: Colors.red,
                                 ),
-                                color: Colors.red,
-                              ),
-                            );
+                                child: NoteContainer(
+                                    note: pin.notes[index - 1],
+                                    onEditNoteCallback: (editedNote) {
+                                      removeNote(index - 1);
+                                      addNote(editedNote);
+                                    },
+                                    onDeleteCallback: () {
+                                      removeNote(index - 1);
+                                    }));
                           } else {
                             return null;
                           }
                         }),
                   ),
-                  const Divider(),
+                  const SizedBox(
+                    height: 50,
+                  )
                 ],
               ),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              decoration: const BoxDecoration(color: Colors.white),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      style: Styles.primaryButton(width: 125, height: 30),
-                      onPressed: () {
-                        context.read<NewTripProvider>().clearPinInformation();
-                        Navigator.pop(context);
-                      },
-                      child: const Text("Cancel"),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      style: Styles.primaryButton(width: 125, height: 30),
-                      onPressed: isPinInformationValid(pin)
-                          ? () {
-                              context.read<NewTripProvider>().addPin();
-                              Navigator.pop(context);
-                            }
-                          : null,
-                      child: const Text("Create"),
-                    ),
-                  ),
-                ],
-              ),
+        ],
+        bottomBarChildren: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              style: Styles.primaryButton(width: 125, height: 30),
+              onPressed: () {
+                context.read<NewTripProvider>().clearPinInformation();
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              style: Styles.primaryButton(width: 125, height: 30),
+              onPressed: isPinInformationValid(pin)
+                  ? () {
+                      context.read<NewTripProvider>().addPin();
+                      Navigator.pop(context);
+                    }
+                  : null,
+              child: const Text("Add"),
             ),
           ),
         ],
