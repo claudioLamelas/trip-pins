@@ -5,6 +5,7 @@ import 'package:trip_pins/data/pin.dart';
 import 'package:trip_pins/data/trip.dart';
 import 'package:trip_pins/firebase_options.dart';
 import 'package:trip_pins/providers/new_trip_provider.dart';
+import 'package:trip_pins/providers/user_trips_provider.dart';
 import 'package:trip_pins/ui/pages/home_page.dart';
 
 void main() async {
@@ -15,8 +16,11 @@ void main() async {
   runApp(
     ChangeNotifierProvider.value(
       value: NewTripProvider(newTrip: Trip(), newPin: Pin()),
-      child: const MaterialApp(
-        home: HomePage(),
+      child: ChangeNotifierProvider.value(
+        value: UserTripsProvider(userTrips: []),
+        child: const MaterialApp(
+          home: HomePage(),
+        ),
       ),
     ),
     // ),

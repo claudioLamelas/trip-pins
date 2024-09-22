@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:trip_pins/data/trip.dart';
 import 'package:trip_pins/providers/new_trip_provider.dart';
+import 'package:trip_pins/providers/user_trips_provider.dart';
 import 'package:trip_pins/ui/app_bars/info_app_bar.dart';
 import 'package:trip_pins/ui/common/stack_with_bottom_buttons.dart';
 import 'package:trip_pins/ui/common/text_field_input.dart';
@@ -283,7 +284,13 @@ class _AddTripFormState extends State<AddTripForm> {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               style: Styles.primaryButton(width: 125, height: 30),
-              onPressed: isTripInformationValid(trip) ? () {} : null,
+              onPressed: isTripInformationValid(trip)
+                  ? () {
+                      context.read<UserTripsProvider>().addTrip(trip);
+                      context.read<NewTripProvider>().clearTripInformation();
+                      Navigator.pop(context);
+                    }
+                  : null,
               child: const Text("Create"),
             ),
           ),

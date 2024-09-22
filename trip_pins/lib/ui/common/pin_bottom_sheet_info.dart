@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trip_pins/data/pin.dart';
+import 'package:trip_pins/ui/common/drag_bar.dart';
 
 class PinBottomSheetInfo extends StatefulWidget {
   final Pin selectedPin;
@@ -105,6 +106,7 @@ class _PinBottomSheetInfoState extends State<PinBottomSheetInfo>
                 controller: scrollController,
                 child: Column(
                   children: [
+                    const DragBar(),
                     TabPageSelector(
                       controller: _tabController,
                     ),

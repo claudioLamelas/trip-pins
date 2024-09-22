@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trip_pins/data/pin.dart';
+import 'package:trip_pins/data/trip.dart';
+import 'package:trip_pins/providers/user_trips_provider.dart';
 import 'package:trip_pins/ui/app_bars/main_app_bar.dart';
 import 'package:trip_pins/ui/common/pin_bottom_sheet_info.dart';
 import 'package:trip_pins/ui/common/positioned_button.dart';
@@ -51,6 +54,14 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  List<Pin> _retrieveAllPinsFromUserTrips(List<Trip> userTrips) {
+    List<Pin> allPins = [];
+    for (Trip trip in userTrips) {
+      allPins.addAll(trip.pins);
+    }
+    return allPins;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +74,8 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           ReadOnlyMap(
-            pins: const [],
+            pins: _retrieveAllPinsFromUserTrips(
+                context.watch<UserTripsProvider>().userTrips),
             onMarkerTap: selectPin,
             onMapTap: () {},
           ),
