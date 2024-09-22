@@ -8,11 +8,13 @@ class AddNotePage extends StatefulWidget {
   final void Function(String note) onNoteAdded;
   final String? existingNoteValue;
   final bool isEditable;
+  final void Function()? onDeleteCallback;
   const AddNotePage(
       {super.key,
       required this.onNoteAdded,
       this.existingNoteValue,
-      required this.isEditable});
+      required this.isEditable,
+      this.onDeleteCallback});
 
   @override
   State<AddNotePage> createState() => _AddNotePageState();
@@ -39,7 +41,23 @@ class _AddNotePageState extends State<AddNotePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: false,
-      appBar: const InfoAppBar(title: "Add Note"),
+      appBar: InfoAppBar(
+        title: widget.existingNoteValue != null ? "Edit Note" : "Add Note",
+        actions:
+            widget.existingNoteValue != null && widget.onDeleteCallback != null
+                ? [
+                    IconButton(
+                      iconSize: 30,
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        widget.onDeleteCallback!();
+                        Navigator.pop(context);
+                      },
+                      color: const Color.fromARGB(143, 0, 0, 0),
+                    ),
+                  ]
+                : [],
+      ),
       body: StackWithBottomButtons(
         stackChildren: [
           SingleChildScrollView(

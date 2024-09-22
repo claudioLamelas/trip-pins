@@ -7,7 +7,6 @@ import 'package:trip_pins/data/pin.dart';
 import 'package:trip_pins/data/trip.dart';
 import 'package:trip_pins/providers/new_trip_provider.dart';
 import 'package:trip_pins/ui/app_bars/info_app_bar.dart';
-import 'package:trip_pins/ui/common/expandable_content.dart';
 import 'package:trip_pins/ui/common/image_container.dart';
 import 'package:trip_pins/ui/common/note_container.dart';
 import 'package:trip_pins/ui/common/stack_with_bottom_buttons.dart';
@@ -101,7 +100,11 @@ class _AddPinPageState extends State<AddPinPage> {
 
     return Scaffold(
       extendBodyBehindAppBar: false,
-      appBar: InfoAppBar(title: context.watch<NewTripProvider>().newTrip.name),
+      appBar: InfoAppBar(
+        title: context.watch<NewTripProvider>().newTrip.name,
+        onLeadingPress: () =>
+            context.read<NewTripProvider>().clearPinInformation(),
+      ),
       body: StackWithBottomButtons(
         stackChildren: [
           Padding(
@@ -209,17 +212,15 @@ class _AddPinPageState extends State<AddPinPage> {
                               );
                             });
                           } else if (pin.notes.isNotEmpty) {
-                            return ExpandableContent(
-                                maxHeight: 75,
-                                child: NoteContainer(
-                                    note: pin.notes[index - 1],
-                                    onEditNoteCallback: (editedNote) {
-                                      removeNote(index - 1);
-                                      addNote(editedNote);
-                                    },
-                                    onDeleteCallback: () {
-                                      removeNote(index - 1);
-                                    }));
+                            return NoteContainer(
+                                note: pin.notes[index - 1],
+                                onEditNoteCallback: (editedNote) {
+                                  removeNote(index - 1);
+                                  addNote(editedNote);
+                                },
+                                onDeleteCallback: () {
+                                  removeNote(index - 1);
+                                });
                           } else {
                             return null;
                           }
