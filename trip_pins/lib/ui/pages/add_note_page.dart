@@ -42,14 +42,25 @@ class _AddNotePageState extends State<AddNotePage> {
       appBar: const InfoAppBar(title: "Add Note"),
       body: StackWithBottomButtons(
         stackChildren: [
-          TextFieldInput(
-            controller: _noteController,
-            textInputType: TextInputType.multiline,
-            labelText: "Note",
-            flex: 1,
-            isMultiLine: true,
-            onChanged: (value) => setState(() {}),
-            isReadOnly: !widget.isEditable,
+          SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFieldInput(
+                  controller: _noteController,
+                  textInputType: TextInputType.multiline,
+                  labelText: "Note",
+                  flex: 1,
+                  isMultiLine: true,
+                  onChanged: (value) => setState(() {}),
+                  isReadOnly: !widget.isEditable,
+                  shouldAutoFocus: widget.isEditable,
+                ),
+                const SizedBox(
+                  height: 60,
+                )
+              ],
+            ),
           ),
         ],
         bottomBarChildren: [

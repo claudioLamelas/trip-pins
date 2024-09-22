@@ -14,24 +14,32 @@ class NoteContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          CupertinoPageRoute(
-            builder: (context) => AddNotePage(
-              onNoteAdded: onEditNoteCallback,
-              isEditable: true,
-              existingNoteValue: note,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(
+          Radius.circular(5),
+        ),
+        border: Border.all(color: Colors.black),
+      ),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => AddNotePage(
+                onNoteAdded: onEditNoteCallback,
+                isEditable: true,
+                existingNoteValue: note,
+              ),
             ),
+          );
+        },
+        onLongPress: onDeleteCallback,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            note,
           ),
-        );
-      },
-      onLongPress: onDeleteCallback,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          note,
         ),
       ),
     );

@@ -12,6 +12,8 @@ class TextFieldInput extends StatelessWidget {
   final TextInputType textInputType;
   final TextEditingController? controller;
   final void Function(String)? onChanged;
+  final bool shouldAutoFocus;
+  final bool canReceiveFocus;
 
   const TextFieldInput({
     super.key,
@@ -26,12 +28,15 @@ class TextFieldInput extends StatelessWidget {
     this.controller,
     this.onChanged,
     this.textInputType = TextInputType.text,
+    this.shouldAutoFocus = false,
+    this.canReceiveFocus = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Flexible(
       flex: flex,
+      fit: FlexFit.loose,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: TextFormField(
@@ -48,6 +53,10 @@ class TextFieldInput extends StatelessWidget {
               border: const OutlineInputBorder(),
               prefixIcon: prefixIcon,
               suffixIcon: suffixIcon),
+          autofocus: shouldAutoFocus,
+          canRequestFocus: !isReadOnly && canReceiveFocus,
+          onTapOutside: (event) =>
+              FocusManager.instance.primaryFocus?.unfocus(),
         ),
       ),
     );

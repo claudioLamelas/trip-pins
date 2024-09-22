@@ -7,6 +7,7 @@ import 'package:trip_pins/data/pin.dart';
 import 'package:trip_pins/data/trip.dart';
 import 'package:trip_pins/providers/new_trip_provider.dart';
 import 'package:trip_pins/ui/app_bars/info_app_bar.dart';
+import 'package:trip_pins/ui/common/expandable_content.dart';
 import 'package:trip_pins/ui/common/image_container.dart';
 import 'package:trip_pins/ui/common/note_container.dart';
 import 'package:trip_pins/ui/common/stack_with_bottom_buttons.dart';
@@ -208,16 +209,8 @@ class _AddPinPageState extends State<AddPinPage> {
                               );
                             });
                           } else if (pin.notes.isNotEmpty) {
-                            return Container(
-                                height: 60,
-                                //width: 30,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(5),
-                                  ),
-                                  border: Border.all(color: Colors.black),
-                                  // color: Colors.red,
-                                ),
+                            return ExpandableContent(
+                                maxHeight: 75,
                                 child: NoteContainer(
                                     note: pin.notes[index - 1],
                                     onEditNoteCallback: (editedNote) {
@@ -233,7 +226,7 @@ class _AddPinPageState extends State<AddPinPage> {
                         }),
                   ),
                   const SizedBox(
-                    height: 50,
+                    height: 60,
                   )
                 ],
               ),

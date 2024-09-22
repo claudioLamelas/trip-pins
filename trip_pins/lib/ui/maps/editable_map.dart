@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:trip_pins/data/pin.dart';
+import 'package:trip_pins/ui/common/location_info_bottom_sheet.dart';
 import 'package:trip_pins/ui/maps/pin_marker.dart';
 import 'package:trip_pins/ui/maps/trip_pin.dart';
 import 'package:trip_pins/ui/pages/add_pin_page.dart';
@@ -21,6 +22,8 @@ class EditableMap extends StatefulWidget {
 }
 
 class _EditableMapState extends State<EditableMap> {
+  LatLng? selectedLocation;
+
   @override
   void initState() {
     super.initState();
@@ -37,8 +40,11 @@ class _EditableMapState extends State<EditableMap> {
         .toList();
   }
 
-  void addMarker(TapPosition tapPosition, LatLng point) {
+  void addMarker(LatLng point) {
     widget.onLocationSelected(point);
+    setState(() {
+      selectedLocation = null;
+    });
     if (widget.shouldGoToAddPinPage) {
       Navigator.push(context,
           CupertinoPageRoute(builder: (context) => const AddPinPage()));
@@ -47,22 +53,44 @@ class _EditableMapState extends State<EditableMap> {
     }
   }
 
+  void showLocationInfo(LatLng point) {
+    setState(() {
+      selectedLocation = point;
+    });
+  }
+
+  void hideLocationInfo() {
+    setState(() {
+      selectedLocation = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: const LatLng(38.81, -9.17),
-        initialZoom: 10,
-        onLongPress: addMarker,
-      ),
+    return Stack(
       children: [
-        TileLayer(
-          urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-          userAgentPackageName: "com.claudiolamelas.trippins",
+        FlutterMap(
+          options: MapOptions(
+            initialCenter: const LatLng(38.81, -9.17),
+            initialZoom: 10,
+            onTap: (_, point) => showLocationInfo(point),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+              userAgentPackageName: "com.claudiolamelas.trippins",
+            ),
+            MarkerLayer(
+              markers: _createMarkers(),
+            ),
+          ],
         ),
-        MarkerLayer(
-          markers: _createMarkers(),
-        ),
+        if (selectedLocation != null)
+          LocationInfoBottomSheet(
+            location: selectedLocation!,
+            onLocationChosen: (LatLng point) => {addMarker(point)},
+            onLocationDismissed: hideLocationInfo,
+          )
       ],
     );
   }

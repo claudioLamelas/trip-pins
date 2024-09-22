@@ -259,6 +259,9 @@ class _AddTripFormState extends State<AddTripForm> {
                       ),
                     ),
                   ),
+                  const SizedBox(
+                    height: 60,
+                  )
                 ],
               ),
             ),
