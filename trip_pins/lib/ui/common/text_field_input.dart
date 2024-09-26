@@ -14,6 +14,8 @@ class TextFieldInput extends StatelessWidget {
   final void Function(String)? onChanged;
   final bool shouldAutoFocus;
   final bool canReceiveFocus;
+  final EdgeInsetsGeometry padding;
+  final BorderRadius borderRadius;
 
   const TextFieldInput({
     super.key,
@@ -30,6 +32,8 @@ class TextFieldInput extends StatelessWidget {
     this.textInputType = TextInputType.text,
     this.shouldAutoFocus = false,
     this.canReceiveFocus = true,
+    this.padding = const EdgeInsets.all(8.0),
+    this.borderRadius = const BorderRadius.all(Radius.circular(4.0)),
   });
 
   @override
@@ -38,7 +42,7 @@ class TextFieldInput extends StatelessWidget {
       flex: flex,
       fit: FlexFit.loose,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: padding,
         child: TextFormField(
           textAlign: textAlign,
           keyboardType: textInputType,
@@ -50,7 +54,7 @@ class TextFieldInput extends StatelessWidget {
           minLines: isMultiLine ? null : 1,
           decoration: InputDecoration(
               labelText: labelText,
-              border: const OutlineInputBorder(),
+              border: OutlineInputBorder(borderRadius: borderRadius),
               prefixIcon: prefixIcon,
               suffixIcon: suffixIcon),
           autofocus: shouldAutoFocus,

@@ -12,6 +12,7 @@ import 'package:trip_pins/ui/common/text_field_input.dart';
 import 'package:trip_pins/ui/maps/read_only_map.dart';
 import 'package:trip_pins/ui/pages/add_pin_location_page.dart';
 import 'package:trip_pins/ui/pages/add_pin_page.dart';
+import 'package:trip_pins/ui/pages/manage_participants_page.dart';
 import 'package:trip_pins/ui/styles.dart';
 
 class AddTripForm extends StatefulWidget {
@@ -173,16 +174,24 @@ class _AddTripFormState extends State<AddTripForm> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      width: double.infinity,
-                      height: 30,
-                      decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(color: Colors.black)),
-                      child: const Text(
-                        "Participants",
-                        textAlign: TextAlign.center,
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) =>
+                                  const ManageParticipantsPage())),
+                      child: Container(
+                        width: double.infinity,
+                        height: 30,
+                        decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(5)),
+                            border: Border.all(color: Colors.black)),
+                        child: const Center(
+                          child: Text(
+                            "Participants",
+                          ),
+                        ),
                       ),
                     ),
                   ),
